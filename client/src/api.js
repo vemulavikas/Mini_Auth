@@ -103,12 +103,8 @@ export const logoutUser = async (refreshToken) => {
     body: JSON.stringify({ token: refreshToken }),
   });
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error("Logout failed:", errorText);
-    throw new Error(errorText);
-  }
-
+  if (!res.ok) throw new Error("Logout failed");
   return res.json();
 };
+
 

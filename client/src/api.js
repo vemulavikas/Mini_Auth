@@ -94,8 +94,21 @@ export const refreshAccessToken = (token) =>
   });
 
 // Logout
-export const logoutUser = (token) =>
-  fetchJSON(`${API_URL}/api/auth/logout`, {
+export const logoutUser = async (refreshToken) => {
+  const API_BASE = "https://mini-auth-z53w.onrender.com/api/auth";
+
+  const res = await fetch(`${API_BASE}/logout`, {
     method: "POST",
-    body: JSON.stringify({ token }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: refreshToken }),
   });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("Logout failed:", errorText);
+    throw new Error(errorText);
+  }
+
+  return res.json();
+};
+

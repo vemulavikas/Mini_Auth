@@ -1,6 +1,6 @@
 // src/api.js
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const API_URL = process.env.REACT_APP_API_URL || "https://mini-auth-z53w.onrender.com";
 
 // Universal fetch helper
 async function fetchJSON(url, options = {}) {

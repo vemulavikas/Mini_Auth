@@ -1,6 +1,6 @@
 // src/api.js
 
-const API_URL = process.env.REACT_APP_API_URL || "https://mini-auth-z53w.onrender.com";
+const API_URL = "https://mini-auth-z53w.onrender.com";
 
 // Universal fetch helper
 async function fetchJSON(url, options = {}) {
@@ -66,12 +66,26 @@ export const registerUser = (userData) =>
   });
 
 // Login
-export const loginUser = (userData) =>
-  fetchJSON(`${API_URL}/api/auth/login`, {
+export const loginUser = async (credentials) => {
+  const res = await fetch(`${API_BASE}/login`, {
     method: "POST",
-    body: JSON.stringify(userData),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(credentials),
   });
 
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Login failed: ${errorText}`);
+  }
+
+  const data = await res.json();
+
+  // ✅ Store both tokens in localStorage
+  localStorage.setItem("accessToken", data.accessToken);
+  localStorage.setItem("refreshToken", data.refreshToken);
+
+  return data;
+};
 // Refresh
 export const refreshAccessToken = (token) =>
   fetchJSON(`${API_URL}/api/auth/refresh`, {

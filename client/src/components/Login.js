@@ -21,19 +21,20 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMsg("");
-    if (!validate()) return;
+  e.preventDefault();
 
-    const res = await loginUser({ email, password });
-    if (res.accessToken) {
-      localStorage.setItem("accessToken", res.accessToken);
-      localStorage.setItem("refreshToken", res.refreshToken);
-      navigate("/dashboard");
-    } else {
-      setMsg(res.msg || "Login failed");
-    }
-  };
+  try {
+    const result = await loginUser({ email, password });
+    console.log("Login successful:", result);
+
+    // ✅ Call onLogin only after success
+    onLogin();
+  } catch (err) {
+    console.error("Login error:", err.message);
+    alert("Login failed! Please check your email or password.");
+  }
+};
+
 
   return (
     <div className="form-container">

@@ -55,27 +55,24 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password)
-      return res.status(400).json({ msg: "Email and password are required" });
-
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ msg: "Invalid credentials" });
+    if (!user) return res.status(400).json({ msg: "User not found" });
 
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok) return res.status(400).json({ msg: "Invalid credentials" });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
 
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    // persist refresh token in DB (so we can revoke it on logout)
-    user.refreshTokens.push(refreshToken);
-    await user.save();
+    // Store refresh token in user's document
+    await User.updateOne(
+      { _id: user._id },
+      { $addToSet: { refreshTokens: refreshToken } } // avoid duplicates
+    );
 
-    return res.json({ accessToken, refreshToken });
+    res.json({ accessToken, refreshToken });
   } catch (err) {
-    console.error("Login error:", err);
-    return res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message });
   }
 });
 
